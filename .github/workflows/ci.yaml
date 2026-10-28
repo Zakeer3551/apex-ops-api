@@ -8,6 +8,20 @@ on:
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: apex
+          POSTGRES_PASSWORD: ci-test-only
+          POSTGRES_DB: apex_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U apex"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
     steps:
       - name: Get the code
         uses: actions/checkout@v4
@@ -28,6 +42,8 @@ jobs:
         run: ruff format --check .
 
       - name: Tests
+        env:
+          DATABASE_URL: postgresql://apex:ci-test-only@localhost:5432/apex_test
         run: pytest -v
 
   build:
