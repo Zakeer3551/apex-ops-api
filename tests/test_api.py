@@ -51,3 +51,8 @@ def test_version_endpoint_returns_a_version():
 def test_get_item_rejects_non_numeric_id():
     response = client.get("/items/abc")
     assert response.status_code == 422
+
+
+def test_every_response_has_a_request_id():
+    response = client.get("/health")
+    assert "x-request-id" in response.headers

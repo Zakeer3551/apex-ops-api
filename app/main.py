@@ -1,4 +1,8 @@
 import os
+import json
+import time
+import uuid
+from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 
 import psycopg
@@ -23,6 +27,46 @@ async def lifespan(app):
 app = FastAPI(title="Apex Operations API", lifespan=lifespan)
 
 
+def log(level, event, **fields):
+    record = {
+        "time": datetime.now(timezone.utc).isoformat(),
+        "level": level,
+        "event": event,
+        **fields,
+    }
+    print(json.dumps(record), flush=True)
+
+
+@app.middleware("http")
+async def log_requests(request, call_next):
+    request_id = request.headers.get("x-request-id", str(uuid.uuid4()))
+    start = time.perf_counter()
+    try:
+        response = await call_next(request)
+    except Exception as exc:
+        log(
+            "error",
+            "unhandled_error",
+            method=request.method,
+            path=request.url.path,
+            error=type(exc).__name__,
+            request_id=request_id,
+        )
+        raise
+    duration_ms = round((time.perf_counter() - start) * 1000, 1)
+    response.headers["x-request-id"] = request_id
+    log(
+        "info",
+        "request",
+        method=request.method,
+        path=request.url.path,
+        status=response.status_code,
+        duration_ms=duration_ms,
+        request_id=request_id,
+    )
+    return response
+
+
 class ItemIn(BaseModel):
     name: str = Field(min_length=1, max_length=100)
 
@@ -43,7 +87,8 @@ def ready(response: Response):
         with get_conn() as conn:
             conn.execute("SELECT 1")
         return {"status": "ready"}
-    except psycopg.Error:
+    except psycopg.Error as exc:
+        log("warning", "readiness_failed", error=type(exc).__name__)
         response.status_code = 503
         return {"status": "not ready", "reason": "database unreachable"}
 
