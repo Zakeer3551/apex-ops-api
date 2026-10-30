@@ -31,9 +31,11 @@ class ItemIn(BaseModel):
 def health():
     return {"status": "ok"}
 
+
 @app.get("/version")
 def version():
     return {"version": os.environ.get("APP_VERSION", "dev")}
+
 
 @app.get("/ready")
 def ready(response: Response):
