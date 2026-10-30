@@ -40,3 +40,8 @@ def test_create_item_rejects_too_long_name():
 def test_create_item_rejects_missing_name():
     response = client.post("/items", json={})
     assert response.status_code == 422
+
+def test_version_endpoint_returns_a_version():
+    response = client.get("/version")
+    assert response.status_code == 200
+    assert "version" in response.json()

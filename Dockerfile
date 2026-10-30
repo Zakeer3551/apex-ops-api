@@ -8,6 +8,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 
 RUN useradd --create-home appuser
+
+ARG APP_VERSION=dev
+ENV APP_VERSION=${APP_VERSION}
+
 USER appuser
 
 EXPOSE 8000
