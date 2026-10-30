@@ -29,7 +29,7 @@ class ItemIn(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "okay"}
 
 
 @app.get("/ready")
