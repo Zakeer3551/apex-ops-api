@@ -1,0 +1,84 @@
+# Deploy 1.2.0 + JSON request logs + both containers healthy, then incident drill: wrong DB password -> FAILED -> investigation -> fixed (2026-10-30).
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % ./scripts/deploy.sh 1.2.0
+==> Pulling ghcr.io/zakeer3551/apex-ops-api:1.2.0
+1.2.0: Pulling from zakeer3551/apex-ops-api
+0344b2ec66a6: Pull complete 
+64074ecd150a: Already exists 
+2b70e040f7d1: Already exists 
+0922d1fc1a5f: Already exists 
+b41621e272b0: Already exists 
+d6ea3eae58ee: Pull complete 
+2aa34ba29df2: Pull complete 
+a8dfcabba440: Pull complete 
+fa585a23f352: Pull complete 
+44136fa355b3: Already exists 
+8be29b05c045: Download complete 
+Digest: sha256:c00040f010ad8348ca588bccff064559233da1d4a30def99dc0eb26e6281dd6e
+Status: Downloaded newer image for ghcr.io/zakeer3551/apex-ops-api:1.2.0
+ghcr.io/zakeer3551/apex-ops-api:1.2.0
+==> Deploying 1.2.0 (currently running: 1.0.0)
+[+] up 2/2
+ ✔ Container apex-ops-api-db-1  Healthy                                                                                                                                          6.0s
+ ✔ Container apex-ops-api-api-1 Started                                                                                                                                          6.0s
+==> Waiting for /ready (max 30s)
+==> SUCCESS. Running: {"version":"1.2.0"}
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % curl -s http://localhost:8000/items > /dev/null
+docker compose logs api --tail 5
+docker compose ps
+api-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+api-1  | {"time": "2026-10-30T10:19:13.972137+00:00", "level": "info", "event": "request", "method": "GET", "path": "/ready", "status": 200, "duration_ms": 8.3, "request_id": "89e7f7bb-5f84-4e58-8ad8-067928a2eceb"}
+api-1  | {"time": "2026-10-30T10:19:13.987153+00:00", "level": "info", "event": "request", "method": "GET", "path": "/version", "status": 200, "duration_ms": 0.5, "request_id": "e8236eb7-b18b-4dc0-910d-a5620aaf8fdf"}
+api-1  | {"time": "2026-10-30T10:19:16.886309+00:00", "level": "info", "event": "request", "method": "GET", "path": "/health", "status": 200, "duration_ms": 0.3, "request_id": "c1903abf-05e7-49a1-806f-e9076ccb11af"}
+api-1  | {"time": "2026-10-30T10:19:24.533280+00:00", "level": "info", "event": "request", "method": "GET", "path": "/items", "status": 200, "duration_ms": 11.0, "request_id": "492f400f-361c-49fa-b672-7b024fc0bf01"}
+NAME                 IMAGE                                   COMMAND                  SERVICE   CREATED          STATUS                    PORTS
+apex-ops-api-api-1   ghcr.io/zakeer3551/apex-ops-api:1.2.0   "uvicorn app.main:ap…"   api       19 seconds ago   Up 13 seconds (healthy)   0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp
+apex-ops-api-db-1    postgres:16-alpine                      "docker-entrypoint.s…"   db        19 seconds ago   Up 18 seconds (healthy)   5432/tcp
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % ./scripts/deploy.sh 1.2.0
+==> Pulling ghcr.io/zakeer3551/apex-ops-api:1.2.0
+1.2.0: Pulling from zakeer3551/apex-ops-api
+Digest: sha256:c00040f010ad8348ca588bccff064559233da1d4a30def99dc0eb26e6281dd6e
+Status: Image is up to date for ghcr.io/zakeer3551/apex-ops-api:1.2.0
+ghcr.io/zakeer3551/apex-ops-api:1.2.0
+==> Deploying 1.2.0 (currently running: 1.2.0)
+[+] up 2/2
+ ✔ Container apex-ops-api-db-1  Healthy                                                                                                                                          6.0s
+ ✔ Container apex-ops-api-api-1 Started                                                                                                                                          6.0s
+==> Waiting for /ready (max 30s)
+==> FAILED: 1.2.0 is not ready. Roll back with: ./scripts/rollback.sh
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % docker compose ps -a
+NAME                 IMAGE                                   COMMAND                  SERVICE   CREATED              STATUS                          PORTS
+apex-ops-api-api-1   ghcr.io/zakeer3551/apex-ops-api:1.2.0   "uvicorn app.main:ap…"   api       About a minute ago   Exited (3) About a minute ago   
+apex-ops-api-db-1    postgres:16-alpine                      "docker-entrypoint.s…"   db        About a minute ago   Up About a minute (healthy)     5432/tcp
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % docker compose logs api --tail 30
+api-1  | INFO:     Started server process [1]
+api-1  | INFO:     Waiting for application startup.
+api-1  | ERROR:    Traceback (most recent call last):
+api-1  |   File "/usr/local/lib/python3.12/site-packages/starlette/routing.py", line 693, in lifespan
+api-1  |     async with self.lifespan_context(app) as maybe_state:
+api-1  |                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/contextlib.py", line 210, in __aenter__
+api-1  |     return await anext(self.gen)
+api-1  |            ^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/app/app/main.py", line 19, in lifespan
+api-1  |     with get_conn() as conn:
+api-1  |          ^^^^^^^^^^
+api-1  |   File "/app/app/main.py", line 14, in get_conn
+api-1  |     return psycopg.connect(os.environ.get("DATABASE_URL", ""), connect_timeout=2)
+api-1  |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+api-1  |   File "/usr/local/lib/python3.12/site-packages/psycopg/connection.py", line 120, in connect
+api-1  |     raise last_ex.with_traceback(None)
+api-1  | psycopg.OperationalError: connection failed: connection to server at "172.18.0.2", port 5432 failed: FATAL:  password authentication failed for user "apex"
+api-1  | 
+api-1  | ERROR:    Application startup failed. Exiting.
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % ./scripts/deploy.sh 1.2.0
+==> Pulling ghcr.io/zakeer3551/apex-ops-api:1.2.0
+1.2.0: Pulling from zakeer3551/apex-ops-api
+Digest: sha256:c00040f010ad8348ca588bccff064559233da1d4a30def99dc0eb26e6281dd6e
+Status: Image is up to date for ghcr.io/zakeer3551/apex-ops-api:1.2.0
+ghcr.io/zakeer3551/apex-ops-api:1.2.0
+==> Deploying 1.2.0 (currently running: 1.2.0)
+[+] up 2/2
+ ✔ Container apex-ops-api-db-1  Healthy                                                                                                                                          5.7s
+ ✔ Container apex-ops-api-api-1 Started                                                                                                                                          5.7s
+==> Waiting for /ready (max 30s)
+==> SUCCESS. Running: {"version":"1.2.0"}

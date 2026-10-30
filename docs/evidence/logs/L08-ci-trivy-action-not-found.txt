@@ -1,0 +1,9 @@
+# build-and-push failed before running any step (2026-10-30).
+# Cause: action version written without its "v" prefix (tags are v0.28.0 / v0.36.0).
+# Fix: both trivy-action references changed to @v0.36.0. build-and-push green afterwards.
+Prepare all required actions
+Getting action download info
+Error: Unable to resolve action `aquasecurity/trivy-action@0.28.0`, unable to find version `0.28.0`
+
+# After changing only one of the two lines (still without "v"):
+Error: Unable to resolve action `aquasecurity/trivy-action@0.28.0`, unable to find version `0.28.0`. Unable to resolve action `aquasecurity/trivy-action@0.36.0`, unable to find version `0.36.0`

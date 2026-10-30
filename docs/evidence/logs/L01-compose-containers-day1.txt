@@ -1,0 +1,5 @@
+# docker ps after first `docker compose up --build` (2026-10-29). db shows (healthy); db has no published port.
+zak@Artistics-MacBook-Air ~ % docker ps
+CONTAINER ID   IMAGE                COMMAND                  CREATED         STATUS                   PORTS                                         NAMES
+df974729b0a4   apex-ops-api:dev     "uvicorn app.main:ap…"   4 minutes ago   Up 3 minutes             0.0.0.0:8000->8000/tcp, [::]:8000->8000/tcp   apex-ops-api-api-1
+921b32578504   postgres:16-alpine   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes (healthy)   5432/tcp                                      apex-ops-api-db-1

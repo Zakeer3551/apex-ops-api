@@ -1,0 +1,53 @@
+# Release 1.1.0 then roll back to 1.0.0, done twice (2026-10-30).
+# Note the different image digests: rollback returns to the exact same image bytes (d8fe51...).
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % ./scripts/deploy.sh 1.1.0
+==> Pulling ghcr.io/zakeer3551/apex-ops-api:1.1.0
+1.1.0: Pulling from zakeer3551/apex-ops-api
+...
+Digest: sha256:fa41b20eb480d887e81f12a114122320f0dffed0cbef0964c959d802259da69b
+Status: Downloaded newer image for ghcr.io/zakeer3551/apex-ops-api:1.1.0
+ghcr.io/zakeer3551/apex-ops-api:1.1.0
+==> Deploying 1.1.0 (currently running: 1.0.0)
+[+] up 2/2
+ ✔ Container apex-ops-api-db-1  Healthy   6.1s
+ ✔ Container apex-ops-api-api-1 Started   6.0s
+==> Waiting for /ready (max 30s)
+==> SUCCESS. Running: {"version":"1.1.0"}
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % ./scripts/rollback.sh
+==> Rolling back to 1.0.0
+==> Pulling ghcr.io/zakeer3551/apex-ops-api:1.0.0
+1.0.0: Pulling from zakeer3551/apex-ops-api
+Digest: sha256:d8fe51a22702482ac80ef521047331aa9d4493c05a4fc54576a5721c34b7f79a
+Status: Image is up to date for ghcr.io/zakeer3551/apex-ops-api:1.0.0
+ghcr.io/zakeer3551/apex-ops-api:1.0.0
+==> Deploying 1.0.0 (currently running: 1.1.0)
+[+] up 2/2
+ ✔ Container apex-ops-api-db-1  Healthy   6.0s
+ ✔ Container apex-ops-api-api-1 Started   6.0s
+==> Waiting for /ready (max 30s)
+==> SUCCESS. Running: {"version":"1.0.0"}
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % ./scripts/deploy.sh 1.1.0
+==> Pulling ghcr.io/zakeer3551/apex-ops-api:1.1.0
+1.1.0: Pulling from zakeer3551/apex-ops-api
+Digest: sha256:fa41b20eb480d887e81f12a114122320f0dffed0cbef0964c959d802259da69b
+Status: Image is up to date for ghcr.io/zakeer3551/apex-ops-api:1.1.0
+ghcr.io/zakeer3551/apex-ops-api:1.1.0
+==> Deploying 1.1.0 (currently running: 1.0.0)
+[+] up 2/2
+ ✔ Container apex-ops-api-db-1  Healthy   6.0s
+ ✔ Container apex-ops-api-api-1 Started   6.0s
+==> Waiting for /ready (max 30s)
+==> SUCCESS. Running: {"version":"1.1.0"}
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % ./scripts/rollback.sh
+==> Rolling back to 1.0.0
+==> Pulling ghcr.io/zakeer3551/apex-ops-api:1.0.0
+1.0.0: Pulling from zakeer3551/apex-ops-api
+Digest: sha256:d8fe51a22702482ac80ef521047331aa9d4493c05a4fc54576a5721c34b7f79a
+Status: Image is up to date for ghcr.io/zakeer3551/apex-ops-api:1.0.0
+ghcr.io/zakeer3551/apex-ops-api:1.0.0
+==> Deploying 1.0.0 (currently running: 1.1.0)
+[+] up 2/2
+ ✔ Container apex-ops-api-db-1  Healthy   6.0s
+ ✔ Container apex-ops-api-api-1 Started   5.9s
+==> Waiting for /ready (max 30s)
+==> SUCCESS. Running: {"version":"1.0.0"}

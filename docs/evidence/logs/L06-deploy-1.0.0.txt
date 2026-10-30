@@ -1,0 +1,14 @@
+# First versioned deploy from GHCR (2026-10-30). Version is read from inside the image (/version).
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % ./scripts/deploy.sh 1.0.0
+==> Pulling ghcr.io/zakeer3551/apex-ops-api:1.0.0
+1.0.0: Pulling from zakeer3551/apex-ops-api
+Digest: sha256:d8fe51a22702482ac80ef521047331aa9d4493c05a4fc54576a5721c34b7f79a
+Status: Image is up to date for ghcr.io/zakeer3551/apex-ops-api:1.0.0
+ghcr.io/zakeer3551/apex-ops-api:1.0.0
+==> Deploying 1.0.0 (currently running: 1.0.0)
+[+] up 3/3
+ ✔ Network apex-ops-api_default Created
+ ✔ Container apex-ops-api-db-1  Healthy   5.7s
+ ✔ Container apex-ops-api-api-1 Started   5.7s
+==> Waiting for /ready (max 30s)
+==> SUCCESS. Running: {"version":"1.0.0"}

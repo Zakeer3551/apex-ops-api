@@ -1,0 +1,21 @@
+# POST /items via /docs (2026-10-29)
+
+Request:  {"name": "name"}
+Response: 201  {"id": 8, "name": "name"}
+
+Request:  {"name": ""}
+Response: 422
+{
+  "detail": [
+    {
+      "type": "string_too_short",
+      "loc": ["body", "name"],
+      "msg": "String should have at least 1 character",
+      "input": "",
+      "ctx": {"min_length": 1}
+    }
+  ]
+}
+
+# After `docker compose down` and `docker compose up -d`, GET /items:
+[{"id":1,"name":"string"},{"id":2,"name":"string"},{"id":3,"name":"string"},{"id":4,"name":"string"},{"id":5,"name":"string"},{"id":6,"name":"name"},{"id":7,"name":"name"},{"id":8,"name":"name"}]

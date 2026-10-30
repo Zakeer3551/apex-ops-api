@@ -1,0 +1,21 @@
+# CI lint-and-test failed after adding /version (2026-10-30). Reproduced locally:
+# Fix: `ruff format .`, committed "Apply ruff formatting", CI green again. Tests themselves passed.
+
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % ruff check .
+All checks passed!
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % ruff format --check .
+Would reformat: app/main.py
+Would reformat: tests/test_api.py
+2 files would be reformatted, 1 file already formatted
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % pytest -v
+collected 9 items
+tests/test_api.py::test_health_returns_ok PASSED
+tests/test_api.py::test_ready_returns_503_when_database_is_down PASSED
+tests/test_api.py::test_ready_error_does_not_leak_password PASSED
+tests/test_api.py::test_create_item_rejects_empty_name PASSED
+tests/test_api.py::test_create_item_rejects_too_long_name PASSED
+tests/test_api.py::test_create_item_rejects_missing_name PASSED
+tests/test_api.py::test_version_endpoint_returns_a_version PASSED
+tests/test_integration.py::test_ready_with_real_database SKIPPED (needs a real database (set DATABASE_URL))
+tests/test_integration.py::test_create_then_list_item SKIPPED (needs a real database (set DATABASE_URL))
+7 passed, 2 skipped in 0.32s

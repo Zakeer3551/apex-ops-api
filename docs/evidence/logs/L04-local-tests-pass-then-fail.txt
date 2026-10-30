@@ -1,0 +1,61 @@
+# Local pytest: 6 passed, then /health deliberately changed to "okay" -> test fails (2026-10-29). Reverted afterwards.
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % pytest -v
+
+====================================================================== test session starts ======================================================================
+platform darwin -- Python 3.9.6, pytest-8.3.4, pluggy-1.6.0 -- /Users/zak/github/apex-ops-api/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/zak/github/apex-ops-api
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.12.1
+collected 6 items                                                                                                                                               
+
+tests/test_api.py::test_health_returns_ok PASSED                                                                                                          [ 16%]
+tests/test_api.py::test_ready_returns_503_when_database_is_down PASSED                                                                                    [ 33%]
+tests/test_api.py::test_ready_error_does_not_leak_password PASSED                                                                                         [ 50%]
+tests/test_api.py::test_create_item_rejects_empty_name PASSED                                                                                             [ 66%]
+tests/test_api.py::test_create_item_rejects_too_long_name PASSED                                                                                          [ 83%]
+tests/test_api.py::test_create_item_rejects_missing_name PASSED                                                                                           [100%]
+
+======================================================================= 6 passed in 2.82s =======================================================================
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % pytest -v
+
+====================================================================== test session starts ======================================================================
+platform darwin -- Python 3.9.6, pytest-8.3.4, pluggy-1.6.0 -- /Users/zak/github/apex-ops-api/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/zak/github/apex-ops-api
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.12.1
+collected 6 items                                                                                                                                               
+
+tests/test_api.py::test_health_returns_ok FAILED                                                                                                          [ 16%]
+tests/test_api.py::test_ready_returns_503_when_database_is_down PASSED                                                                                    [ 33%]
+tests/test_api.py::test_ready_error_does_not_leak_password PASSED                                                                                         [ 50%]
+tests/test_api.py::test_create_item_rejects_empty_name PASSED                                                                                             [ 66%]
+tests/test_api.py::test_create_item_rejects_too_long_name PASSED                                                                                          [ 83%]
+tests/test_api.py::test_create_item_rejects_missing_name PASSED                                                                                           [100%]
+
+=========================================================================== FAILURES ============================================================================
+____________________________________________________________________ test_health_returns_ok _____________________________________________________________________
+
+    def test_health_returns_ok():
+        response = client.get("/health")
+        assert response.status_code == 200
+>       assert response.json() == {"status": "ok"}
+E       AssertionError: assert {'status': 'okay'} == {'status': 'ok'}
+E         
+E         Differing items:
+E         {'status': 'okay'} != {'status': 'ok'}
+E         
+E         Full diff:
+E           {
+E         -     'status': 'ok',...
+E         
+E         ...Full output truncated (3 lines hidden), use '-vv' to show
+
+tests/test_api.py:14: AssertionError
+==================================================================== short test summary info ====================================================================
+FAILED tests/test_api.py::test_health_returns_ok - AssertionError: assert {'status': 'okay'} == {'status': 'ok'}
+================================================================== 1 failed, 5 passed in 0.20s ==================================================================
+(.venv) zak@Artistics-MacBook-Air apex-ops-api % 
