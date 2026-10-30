@@ -2,7 +2,7 @@ import os
 from contextlib import asynccontextmanager
 
 import psycopg
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel, Field
 
 
@@ -63,3 +63,14 @@ def list_items():
     with get_conn() as conn:
         rows = conn.execute("SELECT id, name FROM items ORDER BY id").fetchall()
     return [{"id": r[0], "name": r[1]} for r in rows]
+
+
+@app.get("/items/{item_id}")
+def get_item(item_id: int):
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT id, name FROM items WHERE id = %s", (item_id,)
+        ).fetchone()
+    if row is None:
+        raise HTTPException(status_code=404, detail="item not found")
+    return {"id": row[0], "name": row[1]}

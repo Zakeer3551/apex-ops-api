@@ -46,3 +46,8 @@ def test_version_endpoint_returns_a_version():
     response = client.get("/version")
     assert response.status_code == 200
     assert "version" in response.json()
+
+
+def test_get_item_rejects_non_numeric_id():
+    response = client.get("/items/abc")
+    assert response.status_code == 422

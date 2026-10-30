@@ -30,3 +30,8 @@ def test_create_then_list_item(client):
 
     items = client.get("/items").json()
     assert created.json() in items
+
+
+def test_get_missing_item_returns_404(client):
+    response = client.get("/items/999999")
+    assert response.status_code == 404
