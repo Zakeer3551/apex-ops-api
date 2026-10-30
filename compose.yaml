@@ -1,7 +1,6 @@
 services:
   api:
-    build: .
-    image: apex-ops-api:dev
+    image: ghcr.io/zakeer3551/apex-ops-api:${API_IMAGE_TAG:?Set API_IMAGE_TAG in .env}
     ports:
       - "8000:8000"
     env_file: .env
