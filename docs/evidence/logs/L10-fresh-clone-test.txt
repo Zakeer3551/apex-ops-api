@@ -1,0 +1,31 @@
+# Fresh-clone test following the README (2026-10-30, ~16:45 IST)
+# Problem: deploy FAILED - the test clone (also named apex-ops-api) reused the existing
+# volume apex-ops-api_db-data, created with a different password than .env.example.
+# Fix: COMPOSE_PROJECT_NAME=apex-review in .env -> own network + volume -> SUCCESS.
+# Only affects a machine that already ran the project; a clean machine works first time.
+
+$ cp .env.example .env
+$ ./scripts/deploy.sh 1.2.0
+==> Deploying 1.2.0 (currently running: 1.0.0)
+ ✔ Network apex-ops-api_default Created
+ ✔ Container apex-ops-api-db-1  Healthy
+ ✔ Container apex-ops-api-api-1 Started
+==> FAILED: 1.2.0 is not ready. Roll back with: ./scripts/rollback.sh
+$ docker compose logs api --tail 5
+psycopg.OperationalError: connection failed: connection to server at "172.18.0.2", port 5432 failed: FATAL:  password authentication failed for user "apex"
+ERROR:    Application startup failed. Exiting.
+
+$ echo "COMPOSE_PROJECT_NAME=apex-review" >> .env
+$ docker compose down
+$ ./scripts/deploy.sh 1.2.0
+ ✔ Network apex-review_default Created
+ ✔ Volume apex-review_db-data  Created
+ ✔ Container apex-review-db-1  Healthy
+ ✔ Container apex-review-api-1 Started
+==> SUCCESS. Running: {"version":"1.2.0"}
+$ curl -s localhost:8000/ready
+{"status":"ready"}
+$ curl -s -X POST localhost:8000/items -H 'content-type: application/json' -d '{"name":"review test"}'
+{"id":1,"name":"review test"}
+$ curl -s localhost:8000/items
+[{"id":1,"name":"review test"}]

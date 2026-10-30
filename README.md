@@ -69,6 +69,8 @@ cp .env.example .env
 
 Expected last line: `==> SUCCESS. Running: {"version":"1.2.0"}`
 
+> **Already ran this project on this machine?** An old `db-data` volume keeps its original password, so a fresh `.env` won't match it and deploy reports FAILED (`password authentication failed` in `docker compose logs api`). Either add `COMPOSE_PROJECT_NAME=apex-review` to `.env` to get a separate, fresh stack, or wipe the old one with `docker compose down -v`. Found during my own fresh-clone test ([L10](docs/evidence/logs/L10-fresh-clone-test.txt)).
+
 Then open:
 
 | URL | What you get |

@@ -134,3 +134,10 @@ Everything below comes from my own runs on a MacBook Air (Apple silicon) and fro
 - **Why it's safe:** the pipeline stopped before running anything, so nothing was published.
 - **Lesson:** pin third-party actions exactly, ideally to a commit SHA.
 - The same screen shows `secret-scan` (gitleaks) ran and produced its `gitleaks-results.sarif` report. The warnings are GitHub notices about Node.js 20 being deprecated in `checkout@v4`, `setup-python@v5` and `gitleaks-action@v2`, and about `ubuntu-latest` moving to Ubuntu 26. They're harmless now, and listed as follow-ups in the [decision memo](DECISION_MEMO.md#trade-offs-i-accepted).
+
+## Fresh-clone reproducibility test
+
+**L10: README followed in a fresh clone** ([log](evidence/logs/L10-fresh-clone-test.txt))
+- **Problem:** first deploy FAILED with `password authentication failed`.
+- **Cause:** the test clone had the same folder name, so Compose reused my existing `db-data` volume, which was created with a different password than `.env.example`.
+- **Fix:** `COMPOSE_PROJECT_NAME=apex-review` in `.env` gave the test its own network and volume, and the deploy reported SUCCESS with an empty, brand-new database. Documented in the README Quick start.
